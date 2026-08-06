@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font-sans); display: flex; flex-direction: column; align-items: center; padding: 2rem 1rem; gap: 1.5rem; }
+  .angle { position: relative; width: 200px; height: 200px; }
+  .line { position: absolute; left: 100px; top: 100px; width: 100px; border-top: 2px solid var(--text-primary); transform-origin: left center; }
+  .dot { position: absolute; left: 96px; top: 96px; width: 8px; height: 8px; border-radius: 50%; background: var(--text-primary); }
+  input[type=number] { width: 80px; text-align: center; font-size: 1rem; }
+  .row { display: flex; align-items: center; gap: 0.75rem; }
+  .feedback { font-size: 0.9rem; color: var(--text-secondary); min-height: 1.2rem; }
+  .score { font-size: 0.85rem; color: var(--text-muted); }
+</style>
+
+<div class="angle">
+  <div class="dot"></div>
+  <div class="line" id="line"></div>
+</div>
+
+<div class="row">
+  <input type="number" id="guess" placeholder="°" min="-180" max="180" />
+  <button onclick="checkGuess()">Guess</button>
+  <button onclick="newAngle()">New angle</button>
+</div>
+
+<div class="feedback" id="feedback"></div>
+<div class="score" id="score">Score: 0 &nbsp;|&nbsp; Round: 1</div>
+
+<script>
+  let actual = 0, score = 0, round = 1;
+
+  function newAngle() {
+    actual = Math.round(Math.random() * 340 - 170);
+    document.getElementById('line').style.transform = `rotate(${actual}deg)`;
+    document.getElementById('feedback').textContent = '';
+    document.getElementById('guess').value = '';
+    document.getElementById('guess').focus();
+  }
+
+  function checkGuess() {
+    const g = parseInt(document.getElementById('guess').value);
+    if (isNaN(g)) return;
+    const diff = Math.abs(actual - g);
+    const fb = document.getElementById('feedback');
+    if (diff === 0) { fb.textContent = '🎯 Exact!'; score += 3; }
+    else if (diff <= 5) { fb.textContent = `Close! Off by ${diff}°`; score += 2; }
+    else if (diff <= 15) { fb.textContent = `Not bad — off by ${diff}°`; score += 1; }
+    else { fb.textContent = `The angle was ${actual}°. Off by ${diff}°.`; }
+    round++;
+    document.getElementById('score').textContent = `Score: ${score} | Round: ${round}`;
+    setTimeout(newAngle, 1400);
+  }
+
+  document.getElementById('guess').addEventListener('keydown', e => e.key === 'Enter' && checkGuess());
+  newAngle();
+</script>
